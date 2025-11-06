@@ -38,14 +38,21 @@ class FaceNetHelper(context: Context) {
     private fun preprocess(bitmap: Bitmap): Array<Array<Array<FloatArray>>> {
         val resized = Bitmap.createScaledBitmap(bitmap, 160, 160, true)
         val input = Array(1) { Array(160) { Array(160) { FloatArray(3) } } }
+
         for (y in 0 until 160) {
             for (x in 0 until 160) {
                 val pixel = resized.getPixel(x, y)
-                input[0][y][x][0] = (Color.red(pixel) - 128f) / 128f
-                input[0][y][x][1] = (Color.green(pixel) - 128f) / 128f
-                input[0][y][x][2] = (Color.blue(pixel) - 128f) / 128f
+
+                val r = (Color.red(pixel) - 127.5f) / 128f
+                val g = (Color.green(pixel) - 127.5f) / 128f
+                val b = (Color.blue(pixel) - 127.5f) / 128f
+
+                input[0][y][x][0] = r
+                input[0][y][x][1] = g
+                input[0][y][x][2] = b
             }
         }
+
         return input
     }
 
