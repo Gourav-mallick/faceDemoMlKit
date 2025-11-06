@@ -26,9 +26,22 @@
         android:layout_height="wrap_content"/>
 
     <Button
+        android:id="@+id/btnLiveCaptureCamera"
+        android:text="select via Live Camera"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <Button
         android:id="@+id/btnRecognize"
         android:text="Select Photo to Recognize"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
+
+    <Button
+        android:id="@+id/btnLiveCamera"
+        android:text="Recognize via Live Camera"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
 
 </LinearLayout>

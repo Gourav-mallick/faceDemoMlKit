@@ -26,6 +26,10 @@ interface FaceDao {
 
     @Query("SELECT * FROM faces")
     suspend fun getAllFaces(): List<FaceEntity>
+
+    @Query("SELECT * FROM faces WHERE LOWER(name) = LOWER(:name) LIMIT 1")
+    suspend fun getFaceByName(name: String): FaceEntity?
+
 }
 
 

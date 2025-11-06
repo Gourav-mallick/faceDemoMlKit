@@ -1,6 +1,8 @@
 package com.example.myapplication
 
+import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Rect
 import android.net.Uri
 import android.os.Bundle
@@ -45,6 +47,17 @@ class MainActivity : AppCompatActivity() {
 
         binding.btnAddFace.setOnClickListener { pickImage.launch("image/*") }
         binding.btnRecognize.setOnClickListener { pickImage.launch("image/*") }
+        binding.btnLiveCaptureCamera.setOnClickListener {
+            val intent = Intent(this, CameraCaptureActivity::class.java)
+            liveCaptureLauncher.launch(intent)
+        }
+
+
+        binding.btnLiveCamera.setOnClickListener {
+            val intent = Intent(this, CameraRecognizeActivity::class.java)
+            startActivity(intent)
+        }
+
     }
 
     private fun processImage(uri: Uri) {
@@ -79,7 +92,23 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun saveFace(name: String, embedding: FloatArray) {
+
+        if (name.isBlank()) {
+            Toast.makeText(this, "Enter name", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+
         lifecycleScope.launch {
+
+            val existing = db.faceDao().getFaceByName(name)
+            if (existing != null) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@MainActivity, "Name already exists!", Toast.LENGTH_SHORT).show()
+                }
+                return@launch
+            }
+
             db.faceDao().insert(FaceEntity(name = name, embedding = embedding.joinToString(",")))
             withContext(Dispatchers.Main) {
                 Toast.makeText(this@MainActivity, "Face saved: $name", Toast.LENGTH_SHORT).show()
@@ -119,4 +148,22 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
+
+
+    private val liveCaptureLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == RESULT_OK) {
+                val bytes = result.data?.getByteArrayExtra("face_bytes") ?: return@registerForActivityResult
+                val bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+
+                val embedding = faceNet.getFaceEmbedding(bmp)
+
+                if (binding.switchMode.isChecked) {
+                    saveFace(binding.etName.text.toString(), embedding)
+                } else {
+                    recognizeFace(embedding)
+                }
+            }
+        }
+
 }
